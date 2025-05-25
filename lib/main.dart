@@ -16,31 +16,27 @@ void main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   runApp(
-    GestureDetector(
-      onTapDown: (_) => jetpackGame.handleTapDown(),
-      child: GameWidget(
-        game: jetpackGame,
-        overlayBuilderMap: {
-          'GameOver': (context, _) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Game Over',
-                      style: TextStyle(fontSize: 40, color: Colors.white),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        jetpackGame.restart(); // ✅ seguro agora
-                      },
-                      child: Text('Reiniciar'),
-                    ),
-                  ],
-                ),
+    GameWidget(
+      game: jetpackGame,
+      overlayBuilderMap: {
+        'GameOver': (context, _) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Game Over',
+                    style: TextStyle(fontSize: 40, color: Colors.white),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      jetpackGame.restart();
+                    },
+                    child: Text('Reiniciar'),
+                  ),
+                ],
               ),
-        },
-      ),
+            ),
+      },
     ),
   );
 }
-

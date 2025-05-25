@@ -1,9 +1,11 @@
-import 'dart:math';
-import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame/input.dart'; // necessário para TapDetector
+import 'package:flame/components.dart';
 import 'package:flame/parallax.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 import 'ceiling_component.dart';
 import 'coin_component.dart';
@@ -11,21 +13,25 @@ import 'ground_component.dart';
 import 'obstacle_component.dart';
 import 'player_component.dart';
 
-class JetpackGame extends FlameGame with HasCollisionDetection, TapCallbacks {
+class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
   late final ParallaxComponent parallax;
   late final PlayerComponent player;
-
   late TextComponent coinText;
+
   int coinsCollected = 0;
   bool isGameOver = false;
-
   final _random = Random();
+
+  @override
+  bool get debugMode => false;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Fundo paralaxe
+    FlameAudio.bgm.initialize();
+    await FlameAudio.bgm.play('bg.mp3', volume: 0.5);
+
     parallax = await loadParallaxComponent(
       [ParallaxImageData('background/layer1.png')],
       baseVelocity: Vector2(60, 0),
@@ -33,7 +39,6 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     );
     add(parallax);
 
-    // HUD de moedas
     coinText = TextComponent(
       text: 'Moedas: 0',
       position: Vector2(200, 10),
@@ -45,37 +50,28 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     );
     add(coinText);
 
-    // Cria o player apenas uma vez
     player = PlayerComponent();
     add(player);
 
-    setup(); // Adiciona os demais elementos
+    setup();
   }
 
   void setup() {
-    // Reset do HUD
     coinsCollected = 0;
     coinText.text = 'Moedas: 0';
 
-    // Reseta o estado do player
     player.position = Vector2(100, size.y / 2);
     player.speedY = 0;
 
-    // Chão
     add(
       GroundComponent(
         position: Vector2(0, size.y - 70),
         size: Vector2(size.x, 64),
       ),
     );
-
-    // Teto
     add(CeilingComponent(position: Vector2(0, 0), size: Vector2(size.x, 10)));
 
-    // Timer de moedas
     add(TimerComponent(period: 2, repeat: true, onTick: spawnCoin));
-
-    // Timer de obstáculos
     add(
       TimerComponent(
         period: 3,
@@ -106,6 +102,8 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   void gameOver() {
     if (isGameOver) return;
     isGameOver = true;
+    FlameAudio.play('gameover.mp3');
+    FlameAudio.bgm.stop();
     pauseEngine();
     overlays.add('GameOver');
   }
@@ -114,23 +112,21 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     overlays.remove('GameOver');
     isGameOver = false;
 
-    // Remove tudo, menos fundo, HUD e player
     children
         .where((c) => c != parallax && c != coinText && c != player)
         .toList()
         .forEach((c) => c.removeFromParent());
 
-    // Reseta o jogo
     setup();
+    FlameAudio.bgm.play('bg.mp3', volume: 0.5);
 
-    // Retoma o jogo
     resumeEngine();
   }
 
-  void handleTapDown() {
+  @override
+  void onTapDown(TapDownInfo info) {
     if (!isGameOver) {
       player.speedY = player.jetForce;
-      print('Tap manual disparado');
     }
   }
 }

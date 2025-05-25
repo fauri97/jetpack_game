@@ -1,5 +1,6 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:jetpack_game/game/ceiling_component.dart';
 import 'package:jetpack_game/game/ground_component.dart';
 import 'package:jetpack_game/game/obstacle_component.dart';
@@ -8,7 +9,7 @@ import 'coin_component.dart';
 
 class PlayerComponent extends SpriteAnimationComponent
     with HasGameReference<JetpackGame>, CollisionCallbacks {
-  PlayerComponent() : super(size: Vector2(64, 64));
+  PlayerComponent() : super(size: Vector2(96, 96));
 
   double speedY = 0;
   final double gravity = 500;
@@ -34,7 +35,7 @@ class PlayerComponent extends SpriteAnimationComponent
 
     add(
       RectangleHitbox.relative(
-        Vector2(0.5, 0.6), // 50% da largura, 60% da altura
+        Vector2(1, 1),
         parentSize: size,
         anchor: Anchor.center,
       ),
@@ -59,6 +60,12 @@ class PlayerComponent extends SpriteAnimationComponent
       speedY = 0;
       isOnGround = true;
     }
+
+    game.children.whereType<ObstacleComponent>().forEach((obstacle) {
+    if (obstacle.toRect().overlaps(toRect())) {
+      game.gameOver();
+    }
+  });
   }
 
   @override
@@ -74,10 +81,12 @@ class PlayerComponent extends SpriteAnimationComponent
 
     if (other is CoinComponent) {
       other.removeFromParent();
+      FlameAudio.play('coin.mp3');
       game.incrementCoins();
     }
 
     if (other is ObstacleComponent) {
+      FlameAudio.play('gameover.mp3', volume: 2);
       game.gameOver();
     }
 
