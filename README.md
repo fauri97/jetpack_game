@@ -1,16 +1,31 @@
-# jetpack_game
+# 🚀 Jetpack Game
 
-A new Flutter project.
+Um jogo 2D estilo *Jetpack Joyride*, desenvolvido com [Flutter](https://flutter.dev/) + [Flame Engine](https://flame-engine.org/). Neste jogo, você controla um personagem que voa com um jetpack, coleta moedas, desvia de mísseis e enfrenta um chefão que lança cadeiras!
 
-## Getting Started
+![Flutter](https://img.shields.io/badge/flutter-3.0+-blue?logo=flutter)
+![Flame](https://img.shields.io/badge/flame-1.0+-orange?logo=flame)
+![Platform](https://img.shields.io/badge/platform-android-blue)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 📸 Imagens do Jogo
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+> ![screenshot](assets/images/background/main_menu_background.png)
+> 
+> ![screenshot](assets/images/boss/boss1.png)
+>
+> ![screenshot](assets/images/player/player.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 📦 Pré-requisitos
+
+Antes de tudo, instale:
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (versão recomendada: `3.16.0` ou superior)
+- [Android Studio](https://developer.android.com/studio) com emulador ou dispositivo real
+- Extensão Flutter no VSCode (opcional)
+- Git instalado
+
+---
