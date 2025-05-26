@@ -35,5 +35,5 @@ Antes de tudo, instale:
 
 ## 📚 Observações
 
-> Este jogo foi desenvolvido como parte da disciplina de **Engenharia de Software** durante o curso de aplicações móveis.  
+> Este jogo foi desenvolvido como parte do curso de **Engenharia de Software** durante a disciplina de aplicações móveis.  
 > O foco principal do projeto é aplicar conceitos de programação, arquitetura de software e uso de bibliotecas modernas como o Flutter e o Flame Engine.
