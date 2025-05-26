@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jetpack_game/ui/main_menu.dart';
 import 'game/jetpack_game.dart';
 
 void main() async {
@@ -19,24 +20,9 @@ void main() async {
     GameWidget(
       game: jetpackGame,
       overlayBuilderMap: {
-        'GameOver': (context, _) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Game Over',
-                    style: TextStyle(fontSize: 40, color: Colors.white),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      jetpackGame.restart();
-                    },
-                    child: Text('Reiniciar'),
-                  ),
-                ],
-              ),
-            ),
+        'MainMenu': (context, _) => MainMenu(game: jetpackGame),
       },
+      initialActiveOverlays: const ['MainMenu'],
     ),
   );
 }

@@ -1,10 +1,12 @@
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'package:flame/input.dart'; // necessário para TapDetector
+import 'package:flame/input.dart';
 import 'package:flame/components.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import 'package:jetpack_game/game/boss_component.dart';
+import 'package:jetpack_game/persistence/database_service.dart';
 import 'dart:math';
 
 import 'ceiling_component.dart';
@@ -15,23 +17,47 @@ import 'player_component.dart';
 
 class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
   late final ParallaxComponent parallax;
-  late final PlayerComponent player;
+  late PlayerComponent player;
   late TextComponent coinText;
 
+  bool bossIsActive = false;
+
   int coinsCollected = 0;
+  int highscore = 0;
   bool isGameOver = false;
   final _random = Random();
 
   @override
   bool get debugMode => false;
 
+  void scheduleBossAppearance() {
+    final delay = Duration(seconds: 10 + Random().nextInt(28));
+
+    Future.delayed(delay, () {
+      spawnBoss(); // ✅ só aparece se bossIsActive == false
+      scheduleBossAppearance(); // agendar próxima tentativa
+    });
+  }
+
+  void spawnBoss() {
+    if (bossIsActive) return; // evita duplicatas
+
+    bossIsActive = true;
+    add(BossComponent());
+  }
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
+    pauseEngine();
+
     FlameAudio.bgm.initialize();
     await FlameAudio.bgm.play('bg.mp3', volume: 0.5);
 
+    highscore = await DatabaseService.getHighscore();
+
+    // Fundo parallax
     parallax = await loadParallaxComponent(
       [ParallaxImageData('background/layer1.png')],
       baseVelocity: Vector2(60, 0),
@@ -39,6 +65,7 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
     );
     add(parallax);
 
+    // HUD
     coinText = TextComponent(
       text: 'Moedas: 0',
       position: Vector2(200, 10),
@@ -49,20 +76,31 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
       ),
     );
     add(coinText);
+  }
 
+  void startGame() {
+    isGameOver = false;
+    overlays.remove('MainMenu');
+    resetGame();
+    resumeEngine();
+  }
+
+  void resetGame() {
+    // Remove tudo exceto o fundo e o texto do HUD
+    children
+        .where((c) => c != parallax && c != coinText)
+        .toList()
+        .forEach((c) => c.removeFromParent());
+
+    // Recria o player
     player = PlayerComponent();
     add(player);
 
-    setup();
-  }
-
-  void setup() {
+    // Reset HUD
     coinsCollected = 0;
     coinText.text = 'Moedas: 0';
 
-    player.position = Vector2(100, size.y / 2);
-    player.speedY = 0;
-
+    // Solo e teto
     add(
       GroundComponent(
         position: Vector2(0, size.y - 70),
@@ -71,6 +109,12 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
     );
     add(CeilingComponent(position: Vector2(0, 0), size: Vector2(size.x, 10)));
 
+    bossIsActive = false;
+
+    //Spawna o boss
+    scheduleBossAppearance();
+
+    // Timers
     add(TimerComponent(period: 2, repeat: true, onTick: spawnCoin));
     add(
       TimerComponent(
@@ -83,6 +127,8 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
         },
       ),
     );
+
+    FlameAudio.bgm.play('bg.mp3', volume: 0.5);
   }
 
   void spawnCoin() {
@@ -99,28 +145,21 @@ class JetpackGame extends FlameGame with HasCollisionDetection, TapDetector {
     coinText.text = 'Moedas: $coinsCollected';
   }
 
-  void gameOver() {
+  void gameOver() async {
     if (isGameOver) return;
     isGameOver = true;
+
+    await FlameAudio.bgm.stop();
+
     FlameAudio.play('gameover.mp3');
-    FlameAudio.bgm.stop();
+
+    Future.delayed(const Duration(seconds: 4), () {
+      FlameAudio.bgm.play('bg.mp3', volume: 0.5);
+    });
+
+    await DatabaseService.addScore(coinsCollected);
+    overlays.add('MainMenu');
     pauseEngine();
-    overlays.add('GameOver');
-  }
-
-  void restart() {
-    overlays.remove('GameOver');
-    isGameOver = false;
-
-    children
-        .where((c) => c != parallax && c != coinText && c != player)
-        .toList()
-        .forEach((c) => c.removeFromParent());
-
-    setup();
-    FlameAudio.bgm.play('bg.mp3', volume: 0.5);
-
-    resumeEngine();
   }
 
   @override
