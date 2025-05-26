@@ -2,6 +2,8 @@
 
 Um jogo 2D estilo *Jetpack Joyride*, desenvolvido com [Flutter](https://flutter.dev/) + [Flame Engine](https://flame-engine.org/). Neste jogo, você controla um personagem que voa com um jetpack, coleta moedas, desvia de mísseis e enfrenta um chefão que lança cadeiras!
 
+
+
 ![Flutter](https://img.shields.io/badge/flutter-3.0+-blue?logo=flutter)
 ![Flame](https://img.shields.io/badge/flame-1.0+-orange?logo=flame)
 ![Platform](https://img.shields.io/badge/platform-android-blue)
@@ -29,3 +31,9 @@ Antes de tudo, instale:
 - Git instalado
 
 ---
+
+
+## 📚 Observações
+
+> Este jogo foi desenvolvido como parte da disciplina de **Engenharia de Software** durante o curso de aplicações móveis.  
+> O foco principal do projeto é aplicar conceitos de programação, arquitetura de software e uso de bibliotecas modernas como o Flutter e o Flame Engine.
